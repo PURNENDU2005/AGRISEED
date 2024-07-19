@@ -33,30 +33,21 @@
 
 </head>
 
-<body onload="startTimer()">
+<body>
 
 
   <!-- Loader -->
-  <div id="loader2">
-    <div>
-      <div class="fire">
-        <div class="fire-left">
-          <div class="main-fire"></div>
-          <div class="particle-fire"></div>
-        </div>
-        <div class="fire-center">
-          <div class="main-fire"></div>
-          <div class="particle-fire"></div>
-        </div>
-        <div class="fire-right">
-          <div class="main-fire"></div>
-          <div class="particle-fire"></div>
-        </div>
-        <div class="fire-bottom">
-          <div class="main-fire"></div>
+  <div class="loader">
+    <div class="loader-icon">
+      <div class="loader2">
+        <p class="heading">Loading</p>
+        <div class="loading">
+          <div class="load"></div>
+          <div class="load"></div>
+          <div class="load"></div>
+          <div class="load"></div>
         </div>
       </div>
-    </div>
     </div>
   </div>
 
@@ -256,12 +247,9 @@
 
 
   <script>
-    function startTimer() {
-      setTimeout(function () {
-        document.getElementById('loader2').style.display = 'none';
-        document.querySelector('.main-part').style.display = 'block';
-      }, 1000); // 1 seconds
-    }
+    window.onload = function() {
+      document.body.classList.add('loaded');
+    };
   </script>
 
 
