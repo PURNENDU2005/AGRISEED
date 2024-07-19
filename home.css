@@ -452,7 +452,7 @@ body {
 .home {
   width: 100%;
   height: auto;
-  background-image: url(/image/farm4.jpg);
+  background-image: url(farm4.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -861,7 +861,7 @@ body {
 .contact-page {
   width: 100%;
   height: auto;
-  background-image: url(/image/Agric12.jpg);
+  background-image: url(Agric12.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
