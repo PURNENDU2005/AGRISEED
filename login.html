@@ -261,7 +261,6 @@
                 <h1 class="vui">Sign in</h1>
                 <input type="email" id="signin_email" placeholder="Email" />
                 <input type="password" id="signin_password" placeholder="Password" />
-                <!-- <a href="#">Forgot your password?</a> -->
                 <button id="signInButton">Sign In</button>
             </form>
         </div>
@@ -284,7 +283,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-        import { getDatabase, ref, set, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getDatabase, ref, set, update, get, child } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBwJVu57QYZL41mUqbkGPsv0khSed7Wc3g",
@@ -293,7 +292,8 @@
             storageBucket: "agriseed-fbc67.appspot.com",
             messagingSenderId: "302142397565",
             appId: "1:302142397565:web:299c53773e7159b794e514",
-            measurementId: "G-YSFTWM1HCJ"
+            measurementId: "G-YSFTWM1HCJ",
+            databaseURL: "https://agriseed-fbc67-default-rtdb.firebaseio.com/"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -325,7 +325,7 @@
                     set(ref(database, 'users/' + user.uid), {
                         username: username,
                         email: email,
-                        password: password
+                        password: password // Storing password (Not recommended for production)
                     });
                     window.location.href = 'index2.html'; // Redirect to index2.html
                 })
@@ -356,6 +356,23 @@
                     alert(errorMessage);
                 });
         });
+
+        // Test reading data from the database
+        const testRead = () => {
+            const dbRef = ref(database);
+            get(child(dbRef, 'users/testUserId')).then((snapshot) => {
+                if (snapshot.exists()) {
+                    console.log(snapshot.val());
+                } else {
+                    console.log("No data available");
+                }
+            }).catch((error) => {
+                console.error(error);
+            });
+        };
+
+        // Call the testRead function to verify the data path
+        testRead();
     </script>
 </body>
 
