@@ -441,7 +441,36 @@ function displayWeatherDetails(weatherData) {
     function matchCropsWithWeather(weatherData) {
         const cropsData = [
             // Define your crop data here
-            { name: 'Wheat', condition: 'Moderate or heavy rain with thunder', temperature: { min: 1, max: 300 }, image: 'image/wheat.jpg', details: 'Wheat is a versatile crop used in various food products.' },
+                { name: 'Rice', condition: 'Mist', temperature: { min: 20, max: 40 }, image: 'rice.jpeg', details: 'Rice is a staple food for many cultures around the world.' },
+                { name: 'Corn', condition: 'Sunny', temperature: { min: 18, max: 30 }, image: 'corn.jpg', details: 'Corn is a widely cultivated cereal grain used for various purposes.' },
+                { name: 'Capcicum', condition: 'Sunny', temperature: { min: 5, max: 25 }, image: 'capcicum.jpeg', details: 'Barley is a cereal grain used for brewing beer and making bread.' },
+                { name: 'Cotton', condition: 'Sunny', temperature: { min: 18, max: 30 }, image: 'https://via.placeholder.com/150', details: 'Cotton is a soft, fluffy staple fiber used in textile manufacturing.' },
+                { name: 'Wheat', condition: 'Sunny', temperature: { min: 1, max: 300 }, image: 'wheat.jpg', details: 'Wheat is a versatile crop used in various food products.' },
+                { name: 'Corn', condition: 'Sunny', temperature: { min: 25, max: 28 }, image: 'corn.jpg', details: 'Corn is a widely cultivated cereal grain used for various purposes.' },
+                { name: 'Barley', condition: 'Sunny', temperature: { min: 5, max: 25 }, image: 'https://via.placeholder.com/150', details: 'Barley is a cereal grain used for brewing beer and making bread.' },
+                { name: 'Soybeans', condition: 'Mist', temperature: { min: 20, max: 45 }, image: 'image/soyabin.jpg', details: 'Soybeans are legumes commonly used in food products and animal feed.' },
+                { name: 'Cotton', condition: 'Sunny', temperature: { min: 18, max: 30 }, image: 'https://via.placeholder.com/150', details: 'Cotton is a soft, fluffy staple fiber used in textile manufacturing.' },
+                { name: 'Potatoes', condition: 'Cloudy', temperature: { min: 10, max: 20 }, image: 'https://via.placeholder.com/150', details: 'Potatoes are a staple food grown in many parts of the world.' },
+                { name: 'Tomatoes', condition: 'Sunny', temperature: { min: 20, max: 30 }, image: 'https://via.placeholder.com/150', details: 'Tomatoes are a popular vegetable used in a variety of dishes.' },
+                { name: 'Lettuce', condition: 'Cloudy', temperature: { min: 10, max: 25 }, image: 'https://via.placeholder.com/150', details: 'Lettuce is a leafy green vegetable often used in salads.' },
+                { name: 'Carrots', condition: 'Sunny', temperature: { min: 15, max: 25 }, image: 'https://via.placeholder.com/150', details: 'Carrots are a root vegetable rich in vitamins and minerals.' },
+                { name: 'Brinajl', condition: 'Sunny', temperature: { min: 20, max: 30 }, image: 'brinajl.jpg', details: 'Peppers are a versatile vegetable used in many cuisines.' },
+                { name: 'Cabbage', condition: 'Cloudy', temperature: { min: 10, max: 20 }, image: 'https://via.placeholder.com/150', details: 'Cabbage is a leafy green vegetable used in various dishes.' },
+                { name: 'Onions', condition: 'Sunny', temperature: { min: 15, max: 30 }, image: 'onion.jpg', details: 'Onions are a staple ingredient in many culinary traditions.' },
+                { name: 'Stawbery', condition: 'Sunny', temperature: { min: 15, max: 25 }, image: 'stawbery.jpg', details: 'Stawbery is a popular seasoning used worldwide.' },
+                { name: 'Pumpkins', condition: 'Cloudy', temperature: { min: 10, max: 20 }, image: 'pumpkin.jpg', details: 'Pumpkins are a type of squash used in cooking and decoration.' },
+                { name: 'Peas', condition: 'Cloudy', temperature: { min: 10, max: 20 }, image: 'peas.jpeg', details: 'Peas are a legume used in many culinary dishes.' },
+                { name: 'Lemong', condition: 'Cloudy', temperature: { min: 10, max: 25 }, image: 'lemon.jpeg', details: 'Lemon is a fruit rich in iron and vitamins.' },
+                { name: 'Strawberries', condition: 'Sunny', temperature: { min: 15, max: 25 }, image: 'https://via.placeholder.com/150', details: 'Strawberries are a popular fruit enjoyed worldwide.' },
+                { name: 'Blueberries', condition: 'Sunny', temperature: { min: 15, max: 25 }, image: 'https://via.placeholder.com/150', details: 'Blueberries are a sweet fruit rich in antioxidants.' },
+                { name: 'Raspberries', condition: 'Sunny', temperature: { min: 15, max: 25 }, image: 'https://via.placeholder.com/150', details: 'Raspberries are a popular fruit known for their vibrant color and flavor.' },
+                { name: 'Blackberries', condition: 'Sunny', temperature: { min: 15, max: 25 }, image: 'https://via.placeholder.com/150', details: 'Blackberries are a dark, sweet fruit used in many desserts.' },
+                { name: 'Watermelons', condition: 'Sunny', temperature: { min: 20, max: 30 }, image: 'watermelon.jpeg', details: 'Watermelons are a refreshing fruit enjoyed in the summer.' },
+                { name: 'Cantaloupes', condition: 'Thundery outbreaks in nearby', temperature: { min: 20, max: 30 }, image: 'https://via.placeholder.com/150', details: 'Cantaloupes are a sweet melon enjoyed fresh or in fruit salads.' },
+                { name: 'Honeydew', condition: 'Thundery outbreaks in nearby', temperature: { min: 20, max: 30 }, image: 'https://via.placeholder.com/150', details: 'Honeydew melons are sweet and juicy, perfect for summer.' },
+                { name: 'Cucumbar', condition: 'Moderate or heavy rain with thunder', temperature: { min: 20, max: 90 }, image: 'cucumbar.jpg', details: 'Cucumbers are a refreshing vegetable often used in salads.' },
+                { name: 'ladys finger', condition: 'Thundery outbreaks in nearby', temperature: { min: 20, max: 30 }, image: 'lady-finger.jpg', details: 'Zucchini is a versatile vegetable used in many dishes.' },
+                { name: 'Orange', condition: 'Thundery outbreaks in nearby', temperature: { min: 20, max: 30 }, image: 'orange.jpg', details: 'Eggplants are a nutritious vegetable used in various cuisines.' }
         ];
 
         return cropsData.filter(crop => {
