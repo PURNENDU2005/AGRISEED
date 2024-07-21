@@ -14,7 +14,7 @@
 
         body {
             font-family: Arial, sans-serif;
-            background-image: url(farm4.jpg);
+            background-image: url(/image/farm4.jpg);
             width: 100%;
             height: 100%;
             background-size: cover;
@@ -419,21 +419,23 @@
             .catch(error => console.error('Error:', error));
     }
 
-    // Function to display weather details
-    function displayWeatherDetails(weatherData) {
-        const locationAndWeatherInfo = document.getElementById("weatherData");
-        locationAndWeatherInfo.innerHTML += `
-            <h1>Weather Details</h1>
-            <br>
-            <h3>Temperature: ${weatherData.current.temp_c}°C</h3>
-            <br>
-            <h3>Condition: ${weatherData.current.condition.text}</h3>
-            <br>
-            <h3>Humidity: ${weatherData.current.humidity}%</h3>
-            <br>
-            <h3>Wind Speed: ${weatherData.current.wind_kph} km/h</h3>
-        `;
-    }
+// Function to display weather details
+function displayWeatherDetails(weatherData) {
+    const locationAndWeatherInfo = document.getElementById("weatherData");
+    locationAndWeatherInfo.innerHTML = ''; // Clear previous weather details
+    locationAndWeatherInfo.innerHTML += `
+        <h1>Weather Details</h1>
+        <br>
+        <h3>Temperature: ${weatherData.current.temp_c}°C</h3>
+        <br>
+        <h3>Condition: ${weatherData.current.condition.text}</h3>
+        <br>
+        <h3>Humidity: ${weatherData.current.humidity}%</h3>
+        <br>
+        <h3>Wind Speed: ${weatherData.current.wind_kph} km/h</h3>
+    `;
+}
+
 
     // Function to match weather data with crops
     function matchCropsWithWeather(weatherData) {
@@ -480,15 +482,15 @@
     }
 
     // Auth state change listener
-//     onAuthStateChanged(auth, user => {
-//     if (user) {
-//         // Call getLocationAndWeather only when the user is authenticated
-//         getLocationAndWeather();
-//     } else {
-//         // Redirect to login page if no user is signed in
-//         window.location.href = 'login.html';
-//     }
-// });
+    onAuthStateChanged(auth, user => {
+    if (user) {
+        // Call getLocationAndWeather only when the user is authenticated
+        getLocationAndWeather();
+    } else {
+        // Redirect to login page if no user is signed in
+        window.location.href = 'login.html';
+    }
+});
 
     // Call getLocationAndWeather when the page loads
     window.onload = getLocationAndWeather;
