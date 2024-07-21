@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="x-icon" href="logo2.png">
     <title>Weather Report</title>
+
     <style>
         * {
             padding: 0 auto;
@@ -14,7 +14,7 @@
 
         body {
             font-family: Arial, sans-serif;
-            background-image: url(farm4.jpg);
+            background-image: url(/image/farm4.jpg);
             width: 100%;
             height: 100%;
             background-size: cover;
@@ -120,7 +120,7 @@
             /* display: block; */
             animation: pulse 5s infinite;
             background-color: rgba(0, 0, 0, 0.492);
-            border: 2px solid  white;
+            border: 2px solid white;
         }
 
         @keyframes pulse {
@@ -312,134 +312,142 @@
     </div> -->
 
 
-    <script>
-        // Function to handle successful geolocation retrieval
-        function showPosition(position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
+<!-- Import Firebase scripts -->
+<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js"></script>
 
-            // Get location details using latitude and longitude
-            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`)
-                .then(response => response.json())
-                .then(data => {
-                    // Construct location details string
-                    const locationDetails = `${data.locality}, ${data.principalSubdivision}, ${data.countryName}`;
+<script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
 
-                    // Display location details
-                    const locationInfo = document.getElementById("locationInfo");
-                    locationInfo.innerHTML = `<h2>${locationDetails}</h2>`;
-                });
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBwJVu57QYZL41mUqbkGPsv0khSed7Wc3g",
+        authDomain: "agriseed-fbc67.firebaseapp.com",
+        databaseURL: "https://agriseed-fbc67-default-rtdb.firebaseio.com/",
+        projectId: "agriseed-fbc67",
+        storageBucket: "agriseed-fbc67.appspot.com",
+        messagingSenderId: "302142397565",
+        appId: "1:302142397565:web:299c53773e7159b794e514",
+        measurementId: "G-YSFTWM1HCJ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const database = getDatabase(app);
+
+    // Function to handle geolocation success
+    function showPosition(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        // Get location details
+        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`)
+            .then(response => response.json())
+            .then(data => {
+                const locationDetails = `${data.locality}, ${data.principalSubdivision}, ${data.countryName}`;
+                document.getElementById("locationInfo").innerHTML = `<h2>${locationDetails}</h2>`;
+
+                // Save location details to Firebase
+                saveLocationToFirebase(locationDetails);
+
+                // Fetch weather details
+                fetchWeatherAndUpdate(locationDetails);
+            })
+            .catch(error => {
+                console.error('Error fetching location details:', error);
+                document.getElementById("locationInfo").innerHTML = '<h2>Error fetching location details</h2>';
+            });
+    }
+
+    // Function to handle geolocation errors
+    function showError(error) {
+        const locationInfo = document.getElementById("locationInfo");
+        switch (error.code) {
+            case error.PERMISSION_DENIED:
+                locationInfo.innerHTML = "User denied the request for Geolocation.";
+                break;
+            case error.POSITION_UNAVAILABLE:
+                locationInfo.innerHTML = "Location information is unavailable.";
+                break;
+            case error.TIMEOUT:
+                locationInfo.innerHTML = "The request to get user location timed out.";
+                break;
+            case error.UNKNOWN_ERROR:
+                locationInfo.innerHTML = "An unknown error occurred.";
+                break;
         }
+    }
 
-        // Function to handle geolocation errors
-        function showError(error) {
-            const locationInfo = document.getElementById("locationInfo");
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    locationInfo.innerHTML = "User denied the request for Geolocation.";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    locationInfo.innerHTML = "Location information is unavailable.";
-                    break;
-                case error.TIMEOUT:
-                    locationInfo.innerHTML = "The request to get user location timed out.";
-                    break;
-                case error.UNKNOWN_ERROR:
-                    locationInfo.innerHTML = "An unknown error occurred.";
-                    break;
-            }
-        }
+    // Function to save location to Firebase
+    function saveLocationToFirebase(locationDetails) {
+        const user = auth.currentUser;
+        if (user) {
+            const userId = user.uid;
+            const locationRef = ref(database, `users/${userId}/locationInfo`);
 
-        // Check if Geolocation is supported
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showPosition, showError);
+            set(locationRef, {
+                location: locationDetails,
+                timestamp: new Date().toISOString()
+            })
+                .then(() => console.log('Location info saved successfully!'))
+                .catch(error => console.error('Error saving location info:', error));
         } else {
-            const locationInfo = document.getElementById("locationInfo");
-            locationInfo.innerHTML = "Geolocation is not supported by this browser.";
+            console.log('No user is signed in.');
+            document.getElementById("locationInfo").innerHTML = '<h2>User not signed in</h2>';
         }
-    </script>
+    }
 
+    // Function to fetch weather details and match crops
+    function fetchWeatherAndUpdate(location) {
+        const apiKey = "d67c46b3fe184762bb4175142241104"; // Replace with your WeatherAPI API key
+        fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(location)}`)
+            .then(response => response.json())
+            .then(weatherData => {
+                if (weatherData.error) {
+                    document.getElementById("locationInfo").innerHTML += `<p>Error getting weather data: ${weatherData.error.message}</p>`;
+                } else {
+                    displayWeatherDetails(weatherData);
+                    const matchingCrops = matchCropsWithWeather(weatherData.current);
+                    displayMatchingCrops(matchingCrops);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
 
+    // Function to display weather details
+    function displayWeatherDetails(weatherData) {
+        const locationAndWeatherInfo = document.getElementById("locationInfo");
+        locationAndWeatherInfo.innerHTML += `
+            <h1>Weather Details</h1>
+            <br>
+            <h3>Temperature: ${weatherData.current.temp_c}°C</h3>
+            <br>
+            <h3>Condition: ${weatherData.current.condition.text}</h3>
+            <br>
+            <h3>Humidity: ${weatherData.current.humidity}%</h3>
+            <br>
+            <h3>Wind Speed: ${weatherData.current.wind_kph} km/h</h3>
+        `;
+    }
 
-    <script>
-        // Function to extract query parameters from URL
-        function getQueryParameter(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
-
-        // Function to get location details and weather report
-        function getLocationAndWeather() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                alert("Geolocation is not supported by this browser.");
-            }
-        }
-
-        // Function to handle successful geolocation retrieval
-        function showPosition(position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-
-            // Get location details using latitude and longitude
-            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`)
-                .then(response => response.json())
-                .then(data => {
-                    const locationDetails = `${data.locality}, ${data.principalSubdivision}, ${data.countryName}`;
-
-                    // Display location details
-                    // const locationAndWeatherInfo = document.getElementById("locationAndWeatherInfo");
-                    // locationAndWeatherInfo.innerHTML = `<h2>Location: ${locationDetails}</h2>`;
-
-                    // Fetch weather details using the location
-                    const apiKey = "d67c46b3fe184762bb4175142241104"; // Replace with your WeatherAPI API key
-                    fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(locationDetails)}`)
-                        .then(response => response.json())
-                        .then(weatherData => {
-                            if (weatherData.error) {
-                                locationAndWeatherInfo.innerHTML += `<p>Error getting weather data: ${weatherData.error.message}</p>`;
-                            } else {
-                                // Display weather details
-                                locationAndWeatherInfo.innerHTML += `
-                                    <h1>Weather Details</h1>
-                                    <br>
-                                    <h3>Temperature: ${weatherData.current.temp_c}°C</h3>
-                                    <br>
-                                    <h3>Condition: ${weatherData.current.condition.text}</h3>
-                                    <br>
-                                    <h3>Humidity: ${weatherData.current.humidity}%</h3>
-                                    <br>
-                                    <h3>Wind Speed: ${weatherData.current.wind_kph} km/h</h3>
-                                `;
-
-                                // Match weather data with crops
-                                const matchingCrops = matchCropsWithWeather(weatherData.current);
-                                displayMatchingCrops(matchingCrops);
-                            }
-                        })
-                        .catch(error => console.error('Error:', error));
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        // Function to handle geolocation error
-        function showError(error) {
-            alert("Error getting geolocation: " + error.message);
-        }
-
-        // Function to match weather data with crops
-        function matchCropsWithWeather(weatherData) {
-            const cropsData = [
-                { name: 'Wheat', condition: 'Moderate or heavy rain with thunder', temperature: { min: 1, max: 300 }, image: 'wheat.jpg', details: 'Wheat is a versatile crop used in various food products.' },
-                { name: 'Rice', condition: 'Mist', temperature: { min: 20, max: 40 }, image: 'rice.jpeg', details: 'Rice is a staple food for many cultures around the world.' },
+    // Function to match weather data with crops
+    function matchCropsWithWeather(weatherData) {
+        const cropsData = [
+            // Define your crop data here
+            { name: 'Wheat', condition: 'Moderate or heavy rain with thunder', temperature: { min: 1, max: 300 }, image: 'image/wheat.jpg', details: 'Wheat is a versatile crop used in various food products.' },
+                { name: 'Rice', condition: 'Mist', temperature: { min: 20, max: 40 }, image: 'image/rice.jpeg', details: 'Rice is a staple food for many cultures around the world.' },
                 { name: 'Corn', condition: 'Sunny', temperature: { min: 18, max: 30 }, image: 'corn.jpg', details: 'Corn is a widely cultivated cereal grain used for various purposes.' },
                 { name: 'Capcicum', condition: 'Sunny', temperature: { min: 5, max: 25 }, image: 'capcicum.jpeg', details: 'Barley is a cereal grain used for brewing beer and making bread.' },
                 { name: 'Cotton', condition: 'Sunny', temperature: { min: 18, max: 30 }, image: 'https://via.placeholder.com/150', details: 'Cotton is a soft, fluffy staple fiber used in textile manufacturing.' },
                 { name: 'Wheat', condition: 'Sunny', temperature: { min: 1, max: 300 }, image: 'wheat.jpg', details: 'Wheat is a versatile crop used in various food products.' },
                 { name: 'Corn', condition: 'Sunny', temperature: { min: 25, max: 28 }, image: 'corn.jpg', details: 'Corn is a widely cultivated cereal grain used for various purposes.' },
                 { name: 'Barley', condition: 'Sunny', temperature: { min: 5, max: 25 }, image: 'https://via.placeholder.com/150', details: 'Barley is a cereal grain used for brewing beer and making bread.' },
-                { name: 'Soybeans', condition: 'Mist', temperature: { min: 20, max: 45 }, image: 'soyabin.jpg', details: 'Soybeans are legumes commonly used in food products and animal feed.' },
+                { name: 'Soybeans', condition: 'Mist', temperature: { min: 20, max: 45 }, image: 'image/soyabin.jpg', details: 'Soybeans are legumes commonly used in food products and animal feed.' },
                 { name: 'Cotton', condition: 'Sunny', temperature: { min: 18, max: 30 }, image: 'https://via.placeholder.com/150', details: 'Cotton is a soft, fluffy staple fiber used in textile manufacturing.' },
                 { name: 'Potatoes', condition: 'Cloudy', temperature: { min: 10, max: 20 }, image: 'https://via.placeholder.com/150', details: 'Potatoes are a staple food grown in many parts of the world.' },
                 { name: 'Tomatoes', condition: 'Sunny', temperature: { min: 20, max: 30 }, image: 'https://via.placeholder.com/150', details: 'Tomatoes are a popular vegetable used in a variety of dishes.' },
@@ -457,44 +465,63 @@
                 { name: 'Raspberries', condition: 'Sunny', temperature: { min: 15, max: 25 }, image: 'https://via.placeholder.com/150', details: 'Raspberries are a popular fruit known for their vibrant color and flavor.' },
                 { name: 'Blackberries', condition: 'Sunny', temperature: { min: 15, max: 25 }, image: 'https://via.placeholder.com/150', details: 'Blackberries are a dark, sweet fruit used in many desserts.' },
                 { name: 'Watermelons', condition: 'Sunny', temperature: { min: 20, max: 30 }, image: 'watermelon.jpeg', details: 'Watermelons are a refreshing fruit enjoyed in the summer.' },
-                { name: 'Cucumbar', condition: 'Moderate or heavy rain with thunder', temperature: { min: 20, max: 90 }, image: 'cucumbar.jpg', details: 'Cucumbers are a refreshing vegetable often used in salads.' },
+                { name: 'Cantaloupes', condition: 'Thundery outbreaks in nearby', temperature: { min: 20, max: 30 }, image: 'https://via.placeholder.com/150', details: 'Cantaloupes are a sweet melon enjoyed fresh or in fruit salads.' },
+                { name: 'Honeydew', condition: 'Thundery outbreaks in nearby', temperature: { min: 20, max: 30 }, image: 'https://via.placeholder.com/150', details: 'Honeydew melons are sweet and juicy, perfect for summer.' },
+                { name: 'Cucumbar', condition: 'Moderate or heavy rain with thunder', temperature: { min: 20, max: 90 }, image: 'image/cucumbar.jpg', details: 'Cucumbers are a refreshing vegetable often used in salads.' },
                 { name: 'ladys finger', condition: 'Thundery outbreaks in nearby', temperature: { min: 20, max: 30 }, image: 'lady-finger.jpg', details: 'Zucchini is a versatile vegetable used in many dishes.' },
                 { name: 'Orange', condition: 'Thundery outbreaks in nearby', temperature: { min: 20, max: 30 }, image: 'orange.jpg', details: 'Eggplants are a nutritious vegetable used in various cuisines.' }
-            ];
+        ];
 
-            const matchingCrops = cropsData.filter(crop => {
-                return weatherData.temp_c >= crop.temperature.min &&
-                    weatherData.temp_c <= crop.temperature.max &&
-                    weatherData.condition.text === crop.condition;
-            });
+        return cropsData.filter(crop => {
+            return weatherData.temp_c >= crop.temperature.min &&
+                weatherData.temp_c <= crop.temperature.max &&
+                weatherData.condition.text === crop.condition;
+        });
+    }
 
-            return matchingCrops;
-        }
+    // Function to display matching crops
+    function displayMatchingCrops(crops) {
+        const matchingCropsDiv = document.getElementById("matchingCrops");
+        matchingCropsDiv.innerHTML = '';
 
-        // Function to display matching crops
-        function displayMatchingCrops(crops) {
-            const matchingCropsDiv = document.getElementById("matchingCrops");
-            matchingCropsDiv.innerHTML = '';
-
-            if (crops.length === 0) {
-                matchingCropsDiv.innerHTML += '<p>No matching crops found for current weather conditions.</p>';
-            } else {
-                crops.forEach(crop => {
-                    const cropCard = `
+        if (crops.length === 0) {
+            matchingCropsDiv.innerHTML += '<p>No matching crops found for current weather conditions.</p>';
+        } else {
+            crops.forEach(crop => {
+                const cropCard = `
                 <div class="crop-card">
                     <img src="${crop.image}" alt="${crop.name}">
                     <h3>${crop.name}</h3>
                     <p>${crop.details}</p>
                 </div>
             `;
-                    matchingCropsDiv.innerHTML += cropCard;
-                });
-            }
+                matchingCropsDiv.innerHTML += cropCard;
+            });
         }
+    }
 
-        // Call getLocationAndWeather when the page loads
-        window.onload = getLocationAndWeather;
-    </script>
+    // Function to get location and weather
+    function getLocationAndWeather() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            document.getElementById("locationInfo").innerHTML = '<h2>Geolocation not supported</h2>';
+        }
+    }
+
+    // Auth state change listener
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            getLocationAndWeather();
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+
+    // Call getLocationAndWeather when the page loads
+    window.onload = getLocationAndWeather;
+</script>
+
 </body>
 
 </html>
